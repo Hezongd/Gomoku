@@ -55,7 +55,7 @@ public class Gomoku {
                 int chessman = counter % 2 + 1;
                 Record(state,x2,y2, chessman);
                 printChess(state);
-            }while (true);
+            }while (Judge(state,chessman));
 
 
         }
@@ -225,7 +225,43 @@ public class Gomoku {
     public static void timer(){
         
     }
-
+    public static boolean Judge(int[][] field, int Chessman) {
+        boolean result1 = true, result2 = true, result3 = true, result4 = true, Result;
+        l1:
+        for (int i = 0; i < field.length - 5; i++) {
+            for (int j = 0; j < field[i].length; j++) {
+                result1 = field[i][j] == Chessman && field[i + 1][j] == Chessman && field[i + 2][j] == Chessman && field[i + 3][j] == Chessman && field[i + 4][j] == Chessman;
+                if (result1)
+                    break l1;
+            }
+        }
+        l2:
+        for (int i = 0; i < field.length; i++) {
+            for (int j = 0; j < field[i].length - 5; j++) {
+                result2 = field[i][j] == Chessman && field[i][j + 1] == Chessman && field[i][j + 2] == Chessman && field[i][j + 3] == Chessman && field[i][j + 4] == Chessman;
+                if (result2)
+                    break l2;
+            }
+        }
+        l3:
+        for (int i = 0; i < field.length - 5; i++) {
+            for (int j = 0; j < field[i].length; j++) {
+                result3 = field[i][j] == Chessman && field[i + 1][j + 1] == Chessman && field[i + 2][j + 2] == Chessman && field[i + 3][j + 3] == Chessman && field[i + 4][j + 4] == Chessman;
+                if (result3)
+                    break l3;
+            }
+        }
+        l4:
+        for (int i = field.length - 1; i > 5; i--) {
+            for (int j = 0; j < field[i].length - 4; j++) {
+                result4 = field[i][j] == Chessman && field[i - 1][j + 1] == Chessman && field[i - 2][j + 2] == Chessman && field[i - 3][j + 3] == Chessman && field[i - 4][j + 4] == Chessman;
+                if (result4)
+                    break l4;
+            }
+        }
+        Result = result1 | result2 | result3 | result4;
+        return Result;
+    }
 
 
 }
