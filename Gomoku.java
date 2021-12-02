@@ -10,10 +10,13 @@ public class Gomoku {
     private static final double c1=1.0/17;//15*15
     private static final double c2=1.0/19;//17*17
     private static final double c3=1.0/21;//19*19
+    private static final double a = 1.1;// is H/W
 
     private static int counter = 1;
 
     public static void main(String[] args){
+         StdDraw.setCanvasSize(800,880);//free to change size
+        
 
 
 
@@ -133,13 +136,13 @@ public class Gomoku {
         String[] str ="aabcdefghijklmnopqrs".split("");
 
         for (int i=1;i<1/c;i++){
-            StdDraw.line(c*i,c,c*i,1-c);
-            StdDraw.line(c,c*i,1-c,c*i);
+            StdDraw.line(c*i,c/a,c*i,(1-c)/a);
+            StdDraw.line(c,(c*i)/a,1-c,(c*i)/a);
         }int j=0;
         do {
-            StdDraw.text(c*j+1.5*c,c*0.5, String.valueOf(j+1));
+            StdDraw.text(c*j+1.5*c,c*0.5/a, String.valueOf(j+1));
             j++;
-            StdDraw.text(c*0.5,c*j+0.5*c,str[j]);
+            StdDraw.text(c*0.5,(c*j+0.5*c)/a,str[j]);
 
         }while (j<1/c-2);
     }
@@ -154,20 +157,20 @@ public class Gomoku {
 
         }
     }
-    public static void drawChess1(double x,double y){//print chess
+   public static void drawChess1(double x,double y){//print chess
         double xf=ArrayToCoord(x);
         double yf=ArrayToCoord(y);
-        if (xf>=c&&xf<=1-c&&yf>=c&&yf<1-c){
+        if (xf>=c&&xf<=1-c&&yf>=c&&yf<(1-c)){
             StdDraw.setPenColor(Color.magenta);
-            StdDraw.circle(xf,yf,0.015);
+            StdDraw.ellipse(xf,yf/a,0.015,0.015/a);
         }
     }
     public static void drawChess2(double x,double y){//print chess
         double xf=ArrayToCoord(x);
         double yf=ArrayToCoord(y);
-        if (xf>=c&&xf<=1-c&&yf>=c&&yf<1-c){
+        if (xf>=c&&xf<=1-c&&yf>=c&&yf<(1-c)){
             StdDraw.setPenColor(Color.YELLOW);
-            StdDraw.circle(xf,yf,0.015);
+            StdDraw.ellipse(xf,yf/a,0.015,0.015/a);
 
         }
     }
@@ -262,6 +265,54 @@ public class Gomoku {
         Result = result1 | result2 | result3 | result4;
         return Result;
     }
+    public static void win(int a){//still on test
+        MouseMonitoring();
+        if (a==2){
+            clear();
+            Font font = new Font("Default",Font.PLAIN,100);
+            StdDraw.setFont(font);
+            StdDraw.enableDoubleBuffering();
+            double t = 0.02;
+            double x = 0;
+            while (!StdDraw.isMousePressed()){
+                clear();
+                StdDraw.setPenColor(Color.magenta);
+                StdDraw.text(x,0.3,"Atnegam win!");
+                StdDraw.setPenColor(Color.PINK);
+                StdDraw.text(1-x,0.5,"Atnegam win!");
+                StdDraw.setPenColor(StdDraw.GRAY);
+                StdDraw.text(x,0.7,"Atnegam win!");
+                x=x+t;
+                if (x>1)
+                    x=0;
+                StdDraw.show();
+                StdDraw.pause(100);
+            }
+
+        }if (a==1){
+            clear();
+            Font font = new Font("Default",Font.PLAIN,100);
+            StdDraw.setFont(font);
+            StdDraw.enableDoubleBuffering();
+            double t = 0.02;
+            double x = 0;
+            while (!StdDraw.isMousePressed()){
+                clear();
+                StdDraw.setPenColor(Color.magenta);
+                StdDraw.text(x,0.3,"Wolley win!");
+                StdDraw.setPenColor(Color.PINK);
+                StdDraw.text(1-x,0.5,"Wolley win!");
+                StdDraw.setPenColor(StdDraw.GRAY);
+                StdDraw.text(x,0.7,"Wolley win!");
+                x=x+t;
+                if (x>1)
+                    x=0;
+                StdDraw.pause(50);
+            }bufferN();
+            if (StdDraw.isMousePressed()){
+                clear();
+            }
+        }
 
 
 }
