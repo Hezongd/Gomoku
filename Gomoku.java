@@ -14,6 +14,7 @@ public class Gomoku {
     private static final double c3=1.0/21;//19*19
     private static final double a = 1.1;// is H/W
      private static int chessman = 2;//调整后的
+    public static int choiceConstant;//用于解决undosaveload的参数
     
     public static Calendar Cal;//timer
     public static long midtime;//timer
@@ -85,7 +86,8 @@ public class Gomoku {
 
             do {//禁手方法和saveloadundo判断请写在这个循环里
                 check(state);
-                MouseMonitoring();
+                choiceConstant=0;
+                MouseMonitoring();//如果有点按钮这里之后choiceConstant会发生变化
                 if (x2>c&&x2<1-c&&y2>c/a&&y2<(1-c)/a&&x0!=x2||y0!=y2){
                     x0=x2;
                     y0=y2;
@@ -224,23 +226,23 @@ public class Gomoku {
         if (StdDraw.isMousePressed()) {
                 double x1 = StdDraw.mouseX();
                 double y1 = StdDraw.mouseY();
-                System.out.print(x1+" "+y1+"|\t");
+                checkBottom(x1,y1);
                 x2 = ArrayInterpreter(x1);
-                y2 = ArrayInterpreter(y1);
-                System.out.print(x2+" "+y2+"\t\n");
+                y2 = ArrayInterpreter(y1*a);//这里有更新
+                
 
         }
     }
-    public static int checkBottom(){//还在调试
-        if (ArrayToCoord(y2)>1-c){
-           if (x2>2&&x2<5)
-               return 1;
-           if (x2>5&&x2<8)
-               return 2;
-           if (x2>8&&x2<11)
-               return 3;
+    public static void checkBottom(double x,double y ){
+        if (y<0.92+0.05*0.618&&y>0.92-0.05*0.618){
+            if (x>0.05&&x<0.15)
+                choiceConstant=1;
+            if (x>0.2+0.05*0.618-0.05&&x<0.2+0.05*0.618+0.05)
+                choiceConstant=2;
+            if (x>0.3+2*0.05*0.618-0.05&&x<0.3+2*0.05*0.618+0.05)
+                choiceConstant=3;
 
-        }return 0;
+        }
     }
    public static void drawChess1(double x,double y){//print chess
         double xf=ArrayToCoord(x);
