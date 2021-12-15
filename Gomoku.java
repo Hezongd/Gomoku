@@ -1,38 +1,67 @@
 package Project;
+
+
 import edu.princeton.cs.algs4.StdDraw;
 import java.awt.*;
-import java.util.Calendar;
 import java.util.Timer;
 import java.util.TimerTask;
 
+
 public class Gomoku {
+
     private static double x0,y0,x2,y2;//x1 is mouseX,y1 is mouseY,x2 and y2 is processed x0&y0.
     private static double c;
-    private static int b=0;//用于解决结束界面的问题的参数
     private static final double c1=1.0/17;//15*15
     private static final double c2=1.0/19;//17*17
     private static final double c3=1.0/21;//19*19
-    private static final double a = 1.1;// is H/W
-     private static int chessman = 2;//调整后的
-    public static int choiceConstant;//用于解决undosaveload的参数
-    
-    public static Calendar Cal;//timer
-    public static long midtime;//timer
+    private static final double a = 1.1;//is h/w
+    private static int b=0;//
+    public static long midtime;
+    public static int choiceConstant;
+    public static long mm ;
+    public static long ss ;
+    public static boolean pan;//确定是否下一手
+    public static boolean pan2;//确定是否超时
+    public static boolean pan3;//确定是否胜利
+    public static boolean pan4;//确定是否没有子
+    public static int[][] state ;
+    public static int[][] copy1;
+    public static int[][] copy2;
+    public static int[][] copy3;
+    public static int[][] copy4;
+    public static int[][] copy5;
+    public static int[][] copy6;
+    public static int undoCommand;
+    public static int times=0;
 
 
-   
+    private static int chessman = 0;
 
-     public static void main(String[] args){
+
+    public static void main(String[] args){
         StdDraw.setCanvasSize(800,880);
         l1:
         for (;true;){
             clear();
 
+
             x2=0;
             y2=0;
-            if (b!=0){
-                bufferP();
-                bufferN();
+
+
+            if (b!=0||pan2){
+                if (!pan2){
+                    bufferN();
+                }
+                if (pan2){
+                    if (pan4)
+                        chessman=1;
+                    if (!pan4)
+                        chessman=2;
+                    pan2=false;
+                }
+
+
                 win2(chessman);
                 bufferP();
                 bufferN();
@@ -44,9 +73,17 @@ public class Gomoku {
                 bufferN();
             }
 
+
+
             welcome();
+            Font font2 = new Font("Default",Font.PLAIN,50);
+            StdDraw.setFont(font2);
 
             bufferP();
+            bufferN();
+            while (Choice() == 0) {
+                load();
+            }bufferP();
             bufferN();
 
             while (Size()==0)
@@ -62,75 +99,124 @@ public class Gomoku {
             bufferN();
 
             while (Choice()==0)
-                printChoose();
+                printChoose();//computer2
 
 
             if (Choice()==2){
                 bufferP();
                 bufferN();
                 while (!StdDraw.isMousePressed()||Choice()==0){
-                        printChoose2();
+                        printChoose2();//先手1，后手2
 
-                }bufferP();
+                }
+                bufferP();
                 bufferN();
                 }
-            int[][] state = new int[(int)(1/c)][(int)(1/c)];
+
 
             Font font = new Font("Default",Font.PLAIN,15);
-            clear();
-            StdDraw.setFont(font);
 
+            StdDraw.setFont(font);
+            clear();
             printBoard();
+            state = new int[(int)(1/c)][(int)(1/c)];
+            copy1=state;
+            copy2=state;
+            copy3=state;
+            copy4=state;
+            copy5=state;
+            copy6=state;
 
             InitialState(state);
+            InitialState(copy1);
+            InitialState(copy2);
+            InitialState(copy3);
+            InitialState(copy4);
+            InitialState(copy5);
+            InitialState(copy6);
 
-            do {//禁手方法和saveloadundo判断请写在这个循环里
-                check(state);
-                choiceConstant=0;
-                MouseMonitoring();//如果有点按钮这里之后choiceConstant会发生变化
-                if (x2>c&&x2<1-c&&y2>c/a&&y2<(1-c)/a&&x0!=x2||y0!=y2){
-                    x0=x2;
-                    y0=y2;
-                }
+            timer();
+            try {
+                do {check(state);
+                    choiceConstant=0;
 
-                System.out.println(checkBottom());//save,load,undo的按钮还在调试
-                Record(state,x2,y2, chessman);
-                if (!Judge(state,chessman))
-                    printChess(state);
-                if (Judge(state,chessman)){
-                    InitialState(state);
-                    clear();
-                    b++;
-                    continue l1;
-                }
-            }while (true);//请不要质疑这里的true
+                    if (pan2){
+                        continue l1;
+                    }
+                    MouseMonitoring();
+                    if (x2>c&&x2<1-c&&y2>c/a&&y2<(1-c)/a&&x0!=x2||y0!=y2){
+                        x0=x2;
+                        y0=y2;
+                        if (BalanceBrake(state, x0, y0)) {
+                        }
+                        else {
+                            for (int i = 0; i < 1/c; i++) {
+                                for (int j = 0; j <1/c; j++) {
+                                    copy6[i][j] = copy5[i][j];
+                                    copy5[i][j] = copy4[i][j];
+                                    copy4[i][j] = copy3[i][j];
+                                    copy3[i][j] = copy2[i][j];
+                                    copy2[i][j] = copy1[i][j];
+                                    copy1[i][j] = state[i][j];
+                                }
+                            }System.out.print(0);
+                            if (undoCommand == 0) {
+                            }
+                            if (undoCommand==1){
+                                Undo(state, copy2, copy4, copy6, undoCommand);
+
+                                printList(copy2);
+
+                                printList(copy4);
+                                
+                                printList(copy6);
+
+                            }
+                        }
+                        Record(state,x2,y2, chessman);
+                        pan=true;
+                    }
+
+
+                    if (!Judge(state,chessman))
+                        printChess(state);
+
+
+                    if (Judge(state,chessman)){
+                        pan3=true;
+                        clear();
+                        b++;
+                        continue l1;
+                    }
+                }while (true);
+            }catch (InterruptedException ex){}
         }
     }
-    }public static void clear(){
+    public static void clear(){
         StdDraw.setPenColor(Color.black);
         StdDraw.filledSquare(0.5,0.5,0.5);
     }
-   public static void welcome(){
+    public static void welcome(){
         clear();
         while (!StdDraw.isMousePressed()){
-            Font font3 = new Font("Default",Font.PLAIN,100);
-            StdDraw.setFont(font3);
-            StdDraw.setPenColor(StdDraw.YELLOW);
-            StdDraw.text(0.5,0.62,"CYBER");
-            Font font = new Font("Default",Font.PLAIN,150);
-            StdDraw.setFont(font);
-            StdDraw.setPenColor(StdDraw.MAGENTA);
-            StdDraw.text(0.5,0.5,"Gomoku!");
-            Font font2 = new Font("Default",Font.PLAIN,30);
-            StdDraw.setFont(font2);
-            StdDraw.setPenColor(Color.cyan);
-            StdDraw.text(0.5,0.1,"touch to start");}
+            StdDraw.picture(0.5,0.5,"welcome.png");
+        }
+    }
+    public static void load(){
+        clear();
+        while (!StdDraw.isMousePressed()){
+            StdDraw.setPenColor(Color.magenta);
+            StdDraw.rectangle(0.5,0.7,0.3,0.5*0.618/3);
+            StdDraw.text(0.5,0.7,"Load Game");
+            StdDraw.setPenColor(Color.yellow);
+            StdDraw.rectangle(0.5,0.3,0.3,0.5*0.618/3);
+            StdDraw.text(0.5,0.3,"New Game");
+        }
+
     }
     public static void chooseSize(){
-        clear();
         while (!StdDraw.isMousePressed()){
-            Font font = new Font("Default",Font.PLAIN,50);
-            StdDraw.setFont(font);
+
             StdDraw.setPenColor(StdDraw.MAGENTA);
             StdDraw.rectangle(0.5,0.17,0.3,0.5*0.618/3);
             StdDraw.text(0.5,0.5-0.33,"15 X 15");
@@ -155,9 +241,8 @@ public class Gomoku {
         }return 0;
     }
     public static void printChoose(){
+
         while (!StdDraw.isMousePressed()){
-            Font font = new Font("Default",Font.PLAIN,50);
-            StdDraw.setFont(font);
             StdDraw.setPenColor(Color.magenta);
             StdDraw.rectangle(0.5,0.7,0.3,0.5*0.618/3);
             StdDraw.text(0.5,0.7,"Human");
@@ -171,9 +256,9 @@ public class Gomoku {
             double x = StdDraw.mouseX();
             double y = StdDraw.mouseY();
             if (x<0.8&&x>0.2&&y<0.7+0.5*0.618/3&&y>0.7-0.5*0.618/3)
-                return 1;//Human
+                return 1;//+
             if (x<0.8&&x>0.2&&y<0.3+0.5*0.618/3&&y>0.3-0.5*0.618/3)
-                return -1;
+                return 2;//-
 
         }
         return 0;
@@ -191,15 +276,16 @@ public class Gomoku {
             StdDraw.text(0.5,0.3,"defensive");
         }
     }
-   public static void printBoard(){
+
+    public static void printBoard(){
         clear();
         Font font = new Font("Default",Font.PLAIN,30);
         StdDraw.setFont(font);
         StdDraw.setPenColor(Color.green);
         StdDraw.text(0.1,0.92,"save");
         StdDraw.rectangle(0.1,0.92,0.05,0.05*0.618);
-        StdDraw.text(0.2+0.05*0.618,0.92,"load");
-        StdDraw.rectangle(0.2+0.05*0.618,0.92,0.05,0.05*0.618);
+
+
         StdDraw.text(0.3+2*0.05*0.618,0.92,"undo");
         StdDraw.rectangle(0.3+2*0.05*0.618,0.92,0.05,0.05*0.618);
 
@@ -222,16 +308,20 @@ public class Gomoku {
 
         }while (j<1/c-2);
     }
-    public static void MouseMonitoring(){
-        if (StdDraw.isMousePressed()) {
+    public static void MouseMonitoring()throws InterruptedException{
+        if (isMousePressed()) {
                 double x1 = StdDraw.mouseX();
                 double y1 = StdDraw.mouseY();
                 checkBottom(x1,y1);
                 x2 = ArrayInterpreter(x1);
-                y2 = ArrayInterpreter(y1*a);//这里有更新
-                
-
+                y2 = ArrayInterpreter(y1*a);
         }
+    }public static boolean isMousePressed()throws InterruptedException{
+        if (!StdDraw.isMousePressed()){
+            return false;
+        }Thread.sleep(50);
+        return StdDraw.isMousePressed();
+
     }
     public static void checkBottom(double x,double y ){
         if (y<0.92+0.05*0.618&&y>0.92-0.05*0.618){
@@ -240,11 +330,43 @@ public class Gomoku {
             if (x>0.2+0.05*0.618-0.05&&x<0.2+0.05*0.618+0.05)
                 choiceConstant=2;
             if (x>0.3+2*0.05*0.618-0.05&&x<0.3+2*0.05*0.618+0.05)
-                choiceConstant=3;
+                undoCommand++;
+            else
+                undoCommand=0;
 
         }
     }
-   public static void drawChess1(double x,double y){//print chess
+    public static int[][] Undo(int[][] State, int[][] copy1, int[][] copy2, int[][] copy3, int a) {
+
+        if (a == 1) {
+            for (int i = 0; i < State.length; i++) {
+                for (int j = 0; j < State.length; j++) {
+                    State[i][j] = copy1[i][j];
+                }
+            }
+        }
+        if (a == 2) {
+            for (int i = 0; i < State.length; i++) {
+                for (int j = 0; j < State.length; j++) {
+                    State[i][j] = copy2[i][j];
+                    System.out.print(State[i][j] + "  ");
+                }
+                System.out.print("\n");
+            }
+        }
+        if (a > 2) {
+            for (int i = 0; i < State.length; i++) {
+                for (int j = 0; j < State.length; j++) {
+                    State[i][j] = copy3[i][j];
+                    System.out.print(State[i][j] + "  ");
+                }
+                System.out.print("\n");
+
+            }
+        }
+        return State;
+    }
+    public static void drawChess1(double x,double y){//print chess
         double xf=ArrayToCoord(x);
         double yf=ArrayToCoord(y);
         if (xf>=c&&xf<=1-c&&yf>=c&&yf<(1-c)){
@@ -257,6 +379,15 @@ public class Gomoku {
         double yf=ArrayToCoord(y);
         if (xf>=c&&xf<=1-c&&yf>=c&&yf<(1-c)){
             StdDraw.setPenColor(Color.YELLOW);
+            StdDraw.ellipse(xf,yf/a,0.015,0.015/a);
+
+        }
+    }
+    public static void drawChess3(double x,double y){
+        double xf=ArrayToCoord(x);
+        double yf=ArrayToCoord(y);
+        if (xf>=c&&xf<=1-c&&yf>=c&&yf<(1-c)){
+            StdDraw.setPenColor(Color.BLACK);
             StdDraw.ellipse(xf,yf/a,0.015,0.015/a);
 
         }
@@ -290,7 +421,8 @@ public class Gomoku {
             }
         }
         return State;
-    }public static void check(int[][] list){//用于代替counter
+    }
+    public static void check(int[][] list){
 
         int n =0;
         for (int i =0;i< list.length;i++){
@@ -303,8 +435,30 @@ public class Gomoku {
             chessman=1;
         if (n%2==0)
             chessman=2;
+        if (n%2==0)
+            pan4=true;
+        if (n%2==1)
+            pan4=false;
+
 
     }
+
+    public static boolean checkList(int[][] b ,int[][] a){
+        for (int i=0;i< b.length;i++){
+            for (int j=0;j<b[i].length;j++){
+                if (b[i][j]!=a[i][j])
+                    return false;
+            }
+        }return true;
+    }
+    public static void printList(int[][] a){
+        for (int i=0;i<a.length;i++){
+            for (int j=0;j<a[i].length;j++){
+                System.out.print(a[i][j]+" ");
+            }System.out.print("\n");
+        }
+    }
+
 
     public static void printChess(int[][] a){
         for(int i=0;i<a.length;i++){
@@ -314,6 +468,8 @@ public class Gomoku {
                 }
                 if (a[i][j]==1)
                     drawChess2(i,j);
+
+
             }
         }
     }
@@ -325,10 +481,9 @@ public class Gomoku {
     public static double ArrayToCoord(double a){
         return (a+0.5)*c;
     }
-    public static void timer(){
-        
-    }
+
     public static boolean Judge(int[][] field, int Chessman) {
+
         boolean result1 = true, result2 = true, result3 = true, result4 = true, Result;
         l1:
         for (int i = 0; i < field.length - 5; i++) {
@@ -355,7 +510,7 @@ public class Gomoku {
             }
         }
         l4:
-        for (int i = field.length - 1; i > 5; i--) {
+        for (int i = field.length - 1; i > 4; i--) {
             for (int j = 0; j < field[i].length - 4; j++) {
                 result4 = field[i][j] == Chessman && field[i - 1][j + 1] == Chessman && field[i - 2][j + 2] == Chessman && field[i - 3][j + 3] == Chessman && field[i - 4][j + 4] == Chessman;
                 if (result4)
@@ -364,54 +519,10 @@ public class Gomoku {
         }
         Result = result1 | result2 | result3 | result4;
         return Result;
-    }public static void win2(int a){//调整后的结束界面
-        MouseMonitoring();
-        Gomoku.clear();
-        Font font = new Font("Default", Font.PLAIN, 100);
-        StdDraw.setFont(font);
-
-        while (!StdDraw.isMousePressed()){if (a==1){
-
-
-                StdDraw.setPenColor(StdDraw.YELLOW);
-                StdDraw.text( 0.5, 0.3, "Wolley win!");
-                StdDraw.text( 0.5, 0.5, "Wolley win!");
-                StdDraw.text( 0.5, 0.7, "Wolley win!");
-                StdDraw.setPenColor(Color.orange);
-                StdDraw.text( 0.5, 0.3, "Wolley win!");
-                StdDraw.text( 0.5, 0.5, "Wolley win!");
-                StdDraw.text( 0.5, 0.7, "Wolley win!");
-                StdDraw.setPenColor(StdDraw.CYAN);
-                StdDraw.text( 0.5, 0.3, "Wolley win!");
-                StdDraw.text( 0.5, 0.5, "Wolley win!");
-                StdDraw.text( 0.5, 0.7, "Wolley win!");
-
-
-            }
-            if (a==2){
-
-                StdDraw.setPenColor(Color.magenta);
-
-
-                StdDraw.text(0.51, 0.3, "Atnegam win!");
-                StdDraw.text(0.5, 0.5, "Atnegam win!");
-                StdDraw.text(0.5, 0.7, "Atnegam win!");
-                StdDraw.setPenColor(Color.PINK);
-                StdDraw.text(0.51, 0.3, "Atnegam win!");
-                StdDraw.text(0.5, 0.5, "Atnegam win!");
-                StdDraw.text(0.5, 0.7, "Atnegam win!");
-                StdDraw.setPenColor(StdDraw.CYAN);
-                StdDraw.text(0.51, 0.3, "Atnegam win!");
-                StdDraw.text(0.5, 0.5, "Atnegam win!");
-                StdDraw.text(0.5, 0.7, "Atnegam win!");
-            }
-        }
-
-    }public static void printChoose3(){//结束界面选项
+    }
+    public static void printChoose3(){
         clear();
         while (!StdDraw.isMousePressed()){
-            Font font = new Font("Default",Font.PLAIN,50);
-            StdDraw.setFont(font);
             StdDraw.setPenColor(Color.magenta);
             StdDraw.rectangle(0.5,0.7,0.3,0.5*0.618/3);
             StdDraw.text(0.5,0.7,"Leave");
@@ -419,22 +530,152 @@ public class Gomoku {
             StdDraw.rectangle(0.5,0.3,0.3,0.5*0.618/3);
             StdDraw.text(0.5,0.3,"Again");
         }
-    }private static void time(){//还在调试
+    }
+    private static void timer(){
+        final Font font = new Font("Default", Font.PLAIN, 30);
+        StdDraw.setFont(font);
         Timer timer = new Timer();
         timer.schedule(new TimerTask() {
+
             @Override
             public void run() {
-                midtime--;
-                long hh =midtime/60/60;
-                long mm =midtime/60%60;
-                long ss =midtime%60;
-                System.out.println(hh+" "+mm+" "+ss);
+                if (pan){
+                    midtime=0;
+                    pan=false;
+                }
+                midtime++;
+                mm++;
+
+                long m = mm/60;
+                long ts = mm%60/10;
+                long s = mm%60%10;
+                ss =16-midtime%60;
+
+
+                StdDraw.setPenColor(Color.black);
+                StdDraw.filledRectangle(0.8,0.93,0.35,0.05);
+                StdDraw.setPenColor(Color.RED);
+                if (ss!=0&&!pan3){
+                    StdDraw.text(0.7,0.92,m+":"+ts+s+"      "+"time last:"+ss);
+                }
+
+
+                if (ss==0){
+                    timer.cancel();
+                    pan2=true;
+                    midtime=0;
+                    mm=0;
+                }
+                if (pan3){timer.cancel();
+                    pan3=false;
+                    midtime=0;
+                    mm=0;
+                }
+
+
+
+
+
+
+
             }
         },0,1000);
-    }
-    private static void printTime(){//还在调试
-    }
-    
 
+
+    }public static void win2(int a){
+
+
+        Font font2 = new Font("Default", Font.PLAIN, 100);
+        StdDraw.setFont(font2);
+
+        while (!StdDraw.isMousePressed()){if (a==1){
+
+
+            StdDraw.setPenColor(StdDraw.YELLOW);
+            StdDraw.text( 0.5, 0.3, "YELLOW win!");
+
+            StdDraw.setPenColor(Color.orange);
+
+            StdDraw.text( 0.5, 0.5, "YELLOW win!");
+
+            StdDraw.setPenColor(StdDraw.CYAN);
+
+            StdDraw.text( 0.5, 0.7, "YELLOW win!");
+            StdDraw.setPenColor(Color.black);
+
+
+        }
+            if (a==2){
+
+                StdDraw.setPenColor(Color.magenta);
+                StdDraw.text(0.51, 0.3, "MAGNETA win!");
+                StdDraw.setPenColor(Color.PINK);
+                StdDraw.text(0.5, 0.5, "MAGNETA win!");
+                StdDraw.setPenColor(StdDraw.CYAN);
+                StdDraw.text(0.5, 0.7, "MAGNETA win!");
+                StdDraw.setPenColor(Color.black);
+            }
+        }
+
+    } public static boolean BalanceBrake(int[][] State, double x, double y) {
+        boolean check = false;
+        int check1 = 0, check2 = 0, check3 = 0, check4 = 0, check5 = 0, check6 = 0, check7 = 0, check8 = 0, check9 = 0, check10 = 0, check11 = 0, check12 = 0;
+        int x0 = (int) (x * State.length);
+        int y0 = (int) (y * State.length);
+
+        if (x0 - 3 > 0 && x0 + 1 < State.length - 1)
+            if (State[x0 - 1][y0] == 1 && State[x0 - 2][y0] == 1 && State[x0 - 3][y0] == 0 && State[x0 + 1][y0] == 0)
+                check1 = 1;
+
+        if (x0 + 3 < State.length - 1 && x0 - 1 > 0) {
+            if (State[x0 + 1][y0] == 1 && State[x0 + 2][y0] == 1 && State[x0 + 3][y0] == 0 && State[x0 - 1][y0] == 0)
+                check2 = 1;
+        }
+
+        if (x0 + 2 < State.length - 2 && x0 + 2 > 0) {
+            if (State[x0 - 1][y0] == 1 && State[x0 + 1][y0] == 1 && State[x0 - 2][y0] == 0 && State[x0 + 2][y0] == 0)
+                check3 = 1;
+        }
+        if (x0 + 3 < State.length - 1 && x0 - 1 > 0) {
+            if (State[x0][y0 - 1] == 1 && State[x0][y0 - 2] == 1 && State[x0][y0 - 3] == 0 && State[x0][y0 + 1] == 0)
+                check4 = 1;
+        }
+        if (y0 + 3 < State.length - 1 && y0 - 1 > 0) {
+            if (State[x0][y0 + 1] == 1 && State[x0][y0 + 2] == 1 && State[x0][y0 + 3] == 0 && State[x0][y0 - 1] == 0)
+                check5 = 1;
+        }
+        if (y0 + 2 < State.length - 2 && y0 + 2 > 0) {
+            if (State[x0][y0 - 1] == 1 && State[x0][y0 + 1] == 1 && State[x0][y0 - 2] == 0 && State[x0][y0 + 2] == 0)
+                check6 = 1;
+        }
+        if (y0 - 3 > 0 && y0 + 1 < State.length - 1 && x0 - 3 > 0 && x0 + 1 < State.length - 1) {
+            if (State[x0 - 1][y0 - 1] == 1 && State[x0 - 2][y0 - 2] == 1 && State[x0 - 3][y0 - 3] == 0 && State[x0 + 1][y0 + 1] == 0)
+                check7 = 1;
+        }
+        if (x0 + 3 < State.length - 1 && x0 - 1 > 0 && y0 + 3 < State.length - 1 && y0 - 1 > 0) {
+            if (State[x0 + 1][y0 + 1] == 1 && State[x0 + 2][y0 + 2] == 1 && State[x0 + 3][y0 + 3] == 0 && State[x0 - 1][y0 - 1] == 0)
+                check8 = 1;
+        }
+        if (y0 + 2 < State.length - 2 && y0 + 2 > 0 && x0 + 3 < State.length - 1 && x0 - 1 > 0) {
+            if (State[x0 - 1][y0 - 1] == 1 && State[x0 + 1][y0 + 1] == 1 && State[x0 - 2][y0 - 2] == 0 && State[x0 + 2][y0 + 2] == 0)
+                check9 = 1;
+        }
+        if (y0 + 3 < State.length - 1 && y0 - 1 > 0 && x0 - 3 > 0 && x0 + 1 < State.length - 1) {
+            if (State[x0 - 1][y0 + 1] == 1 && State[x0 - 2][y0 + 2] == 1 && State[x0 - 3][y0 + 3] == 0 && State[x0 + 1][y0 - 1] == 0)
+                check10 = 1;
+        }
+        if (x0 + 3 < State.length - 1 && x0 - 1 > 0 && x0 + 3 < State.length - 1 && x0 - 1 > 0) {
+            if (State[x0 + 1][y0 - 1] == 1 && State[x0 + 2][y0 - 2] == 1 && State[x0 + 3][y0 - 3] == 0 && State[x0 - 1][y0 + 1] == 0)
+                check11 = 1;
+        }
+        if (y0 + 2 < State.length - 2 && y0 + 2 > 0 && x0 + 2 < State.length - 2 && x0 + 2 > 0) {
+            if (State[x0 - 1][y0 + 1] == 1 && State[x0 + 1][y0 - 1] == 1 && State[x0 - 2][y0 + 2] == 0 && State[x0 + 2][y0 - 2] == 0)
+                check12 = 1;
+        }
+        if (check1 + check2 + check3 + check4 + check5 + check6 + check7 + check8 + check9 + check10 + check11 + check12 > 1)
+            check = true;
+
+        return check;
+    }
 
 }
