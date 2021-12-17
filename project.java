@@ -36,9 +36,7 @@ public class project {
     public static int Nullcommand;
     public static double coverX, coverY;
 
-
     private static int chessman = 0;
-
 
     public static void main(String[] args) {
         StdDraw.setCanvasSize(800, 880);
@@ -132,55 +130,55 @@ public class project {
             try {
                 if (HoC == 1) {
                     do {
-
                         check(state);
                         choiceConstant = 0;
                         if (pan2) {
                             continue l1;
                         }
                         MouseMonitoring();
-                        if (undocounter != 0)
-                            undoCommand = 1;
-                        else
-                            undoCommand = 0;
-                        if (x0 != x2 || y0 != y2) {
+                        if (isMousePressed()) {
+                            MouseMonitoring();
+
+                            if (undocounter != 0) {
+                                undoCommand = undoCommand + 1;
+                            } else
+                                undoCommand = 0;
                             if (undoCommand == 0) {
-                                x0 = x2;
-                                y0 = y2;
-                                coverX = x0;
-                                coverY = y0;
-                                if (BalanceBrake(state, x0, y0)) {
-                                    printList(state);
-                                } else {
-                                    for (int i = 0; i < 1 / c; i++) {
-                                        for (int j = 0; j < 1 / c; j++) {
-                                            copy6[i][j] = copy5[i][j];
-                                            copy5[i][j] = copy4[i][j];
-                                            copy4[i][j] = copy3[i][j];
-                                            copy3[i][j] = copy2[i][j];
-                                            copy2[i][j] = copy1[i][j];
-                                            copy1[i][j] = state[i][j];
+                                if (x0 != x2 || y0 != y2) {
+                                    x0 = x2;
+                                    y0 = y2;
+                                    if (BalanceBrake(state, 2, x0, y0)) {
+                                    } else {
+                                        for (int i = 0; i < 1 / c; i++) {
+                                            for (int j = 0; j < 1 / c; j++) {
+                                                copy6[i][j] = copy5[i][j];
+                                                copy5[i][j] = copy4[i][j];
+                                                copy4[i][j] = copy3[i][j];
+                                                copy3[i][j] = copy2[i][j];
+                                                copy2[i][j] = copy1[i][j];
+                                                copy1[i][j] = state[i][j];
+                                            }
                                         }
+                                        System.out.print("0");
+                                        Record(state, x0, y0, chessman);
+                                        pan = true;
                                     }
-                                    System.out.print("0");
-                                    Record(state, x0, y0, chessman);
-                                    pan = true;
-                                    printList(state);
                                 }
                             } else {
+                                System.out.print(undoCommand);
                                 Undo(state, copy2, copy4, copy6, undoCommand);
                                 printList(state);
                                 printBoard();
-                                undocounter=0;
                             }
-                        }
-                        if (!Judge(state, chessman))
-                            printChess(state);
-                        if (Judge(state, chessman)) {
-                            pan3 = true;
-                            clear();
-                            b++;
-                            continue l1;
+
+                            if (!Judge(state, chessman))
+                                printChess(state);
+                            if (Judge(state, chessman)) {
+                                pan3 = true;
+                                clear();
+                                b++;
+                                continue l1;
+                            }
                         }
                     } while (true);
                 } else {
@@ -190,19 +188,19 @@ public class project {
                         if (pan2) {
                             continue l1;
                         }
-
+                        MouseMonitoring();
                         if (isMousePressed()) {
-
                             MouseMonitoring();
-                            if (undocounter != 0)
-                                undoCommand = 1;
-                            else
+
+                            if (undocounter != 0) {
+                                undoCommand = undoCommand + 1;
+                            } else
                                 undoCommand = 0;
-                            if (x0 != x2 || y0 != y2) {
-                                x0 = x2;
-                                y0 = y2;
-                                if (undoCommand == 0) {
-                                    if (BalanceBrake(state, x0, y0)) {
+                            if (undoCommand == 0) {
+                                if (x0 != x2 || y0 != y2) {
+                                    x0 = x2;
+                                    y0 = y2;
+                                    if (BalanceBrake(state, 2, x0, y0)) {
 
                                     } else {
                                         for (int i = 0; i < 1 / c; i++) {
@@ -212,35 +210,41 @@ public class project {
                                                 copy2[i][j] = state[i][j];
                                             }
                                         }
-                                        System.out.print("0");
                                         Record(state, x2, y2, chessman);
                                         pan = true;
                                         if (Judge(state, chessman)) {
-                                            break;
+                                            printChess(state);
+                                            if (Judge(state, chessman)) {
+                                                pan3 = true;
+                                                clear();
+                                                b++;
+                                                continue l1;
+                                            }
                                         }
                                         chessman = chessman - 1;
                                         Compute(state, x2, y2, chessman);
-                                        System.out.print("1");
                                     }
-                                } else {
-                                    Undo(state, copy2, copy4, copy6, undoCommand);
-                                    printList(state);
-                                    System.out.print(undoCommand);
-                                    printBoard();
-                                    undocounter = 0;
                                 }
-                                if (!Judge(state, chessman))
-                                    printChess(state);
-                                if (Judge(state, chessman)) {
-                                    pan3 = true;
-                                    clear();
-                                    b++;
-                                    continue l1;
-                                }
+                            } else {
+                                System.out.print(undoCommand);
+                                Undo(state, copy2, copy4, copy6, undoCommand);
+                                printList(state);
+                                printBoard();
+                            }
+                            if (!Judge(state, chessman))
+                                printChess(state);
+                            if (Judge(state, chessman)) {
+                                pan3 = true;
+                                clear();
+                                b++;
+                                continue l1;
                             }
                         }
+
                     } while (true);
                 }
+
+
             } catch (InterruptedException ex) {
             }
         }
@@ -351,10 +355,7 @@ public class project {
         StdDraw.setPenColor(Color.CYAN);
         Font font2 = new Font("Default", Font.PLAIN, 15);
         StdDraw.setFont(font2);
-
-
         String[] str = "aabcdefghijklmnopqrs".split("");
-
         for (int i = 1; i < 1 / c; i++) {
             StdDraw.line(c * i, c / a, c * i, (1 - c) / a);
             StdDraw.line(c, (c * i) / a, 1 - c, (c * i) / a);
@@ -364,7 +365,6 @@ public class project {
             StdDraw.text(c * j + 1.5 * c, c * 0.5 / a, String.valueOf(j + 1));
             j++;
             StdDraw.text(c * 0.5, (c * j + 0.5 * c) / a, str[j]);
-
         } while (j < 1 / c - 2);
         for (int i = 0; i < state.length; i++) {
             for (int k = 0; k < state.length; k++) {
@@ -385,11 +385,12 @@ public class project {
         if (isMousePressed()) {
             double x1 = StdDraw.mouseX();
             double y1 = StdDraw.mouseY();
+            checkBottom(x1, y1);
+            System.out.print(x1 + " " + y1 + "\n");
             if (x1 > c && x1 < 1 - c && y1 > c && y1 < (1 - c) / a) {
                 x2 = ArrayInterpreter(x1);
                 y2 = ArrayInterpreter(y1 * a);
-            } else
-                checkBottom(x1, y1);
+            }
         }
     }
 
@@ -399,21 +400,22 @@ public class project {
         }
         Thread.sleep(60);
         return StdDraw.isMousePressed();
-
     }
 
     public static void checkBottom(double x, double y) {
         if (y < 0.92 + 0.05 * 0.618 && y > 0.92 - 0.05 * 0.618) {
-            if (x > 0.05 && x < 0.15)
+            if (x > 0.05 && x < 0.15) {
                 choiceConstant = 1;
-            if (x > 0.2 + 0.05 * 0.618 - 0.05 && x < 0.2 + 0.05 * 0.618 + 0.05)
+            }
+            if (x > 0.2 + 0.05 * 0.618 - 0.05 && x < 0.2 + 0.05 * 0.618 + 0.05) {
                 choiceConstant = 2;
-            if (x > 0.3 + 2 * 0.05 * 0.618 - 0.05 && x < 0.3 + 2 * 0.05 * 0.618 + 0.05)
+            }
+            if (x > 0.3 + 2 * 0.05 * 0.618 - 0.05 && x < 0.3 + 2 * 0.05 * 0.618 + 0.05) {
                 undocounter = 1;
-            else
-                undocounter = 0;
+            }
+        } else
+            undocounter = 0;
 
-        }
     }
 
     public static int[][] Undo(int[][] State, int[][] copy1, int[][] copy2, int[][] copy3, int a) {
@@ -490,8 +492,9 @@ public class project {
             }
         }
         if (nullcommand == 2)
-            State0[(State0.length - 1) / 2][(State0.length - 1) / 2] = 1;
+            State0[(State0.length - 1) / 2][(State0.length - 1) / 2] = 2;
         return State0;
+
     }
 
     public static int[][] Record(int[][] State, double x, double y, int Chessman) {
@@ -705,59 +708,59 @@ public class project {
 
     }
 
-    public static boolean BalanceBrake(int[][] State, double x, double y) {
+    public static boolean BalanceBrake(int[][] State, int chessman, double x, double y) {
         boolean check = false;
         int check1 = 0, check2 = 0, check3 = 0, check4 = 0, check5 = 0, check6 = 0, check7 = 0, check8 = 0, check9 = 0, check10 = 0, check11 = 0, check12 = 0;
-        int x0 = (int) (x * State.length);
-        int y0 = (int) (y * State.length);
+        int x0 = (int) (x);
+        int y0 = (int) (y);
 
         if (x0 - 3 > 0 && x0 + 1 < State.length - 1)
-            if (State[x0 - 1][y0] == 1 && State[x0 - 2][y0] == 1 && State[x0 - 3][y0] == 0 && State[x0 + 1][y0] == 0)
+            if (State[x0 - 1][y0] == chessman && State[x0 - 2][y0] == chessman && State[x0 - 3][y0] == 0 && State[x0 + 1][y0] == 0)
                 check1 = 1;
 
         if (x0 + 3 < State.length - 1 && x0 - 1 > 0) {
-            if (State[x0 + 1][y0] == 1 && State[x0 + 2][y0] == 1 && State[x0 + 3][y0] == 0 && State[x0 - 1][y0] == 0)
+            if (State[x0 + 1][y0] == chessman && State[x0 + 2][y0] == chessman && State[x0 + 3][y0] == 0 && State[x0 - 1][y0] == 0)
                 check2 = 1;
         }
 
         if (x0 + 2 < State.length - 2 && x0 + 2 > 0) {
-            if (State[x0 - 1][y0] == 1 && State[x0 + 1][y0] == 1 && State[x0 - 2][y0] == 0 && State[x0 + 2][y0] == 0)
+            if (State[x0 - 1][y0] == chessman && State[x0 + 1][y0] == chessman && State[x0 - 2][y0] == 0 && State[x0 + 2][y0] == 0)
                 check3 = 1;
         }
         if (x0 + 3 < State.length - 1 && x0 - 1 > 0) {
-            if (State[x0][y0 - 1] == 1 && State[x0][y0 - 2] == 1 && State[x0][y0 - 3] == 0 && State[x0][y0 + 1] == 0)
+            if (State[x0][y0 - 1] == chessman && State[x0][y0 - 2] == chessman && State[x0][y0 - 3] == 0 && State[x0][y0 + 1] == 0)
                 check4 = 1;
         }
         if (y0 + 3 < State.length - 1 && y0 - 1 > 0) {
-            if (State[x0][y0 + 1] == 1 && State[x0][y0 + 2] == 1 && State[x0][y0 + 3] == 0 && State[x0][y0 - 1] == 0)
+            if (State[x0][y0 + 1] == chessman && State[x0][y0 + 2] == chessman && State[x0][y0 + 3] == 0 && State[x0][y0 - 1] == 0)
                 check5 = 1;
         }
         if (y0 + 2 < State.length - 2 && y0 + 2 > 0) {
-            if (State[x0][y0 - 1] == 1 && State[x0][y0 + 1] == 1 && State[x0][y0 - 2] == 0 && State[x0][y0 + 2] == 0)
+            if (State[x0][y0 - 1] == chessman && State[x0][y0 + 1] == chessman && State[x0][y0 - 2] == 0 && State[x0][y0 + 2] == 0)
                 check6 = 1;
         }
         if (y0 - 3 > 0 && y0 + 1 < State.length - 1 && x0 - 3 > 0 && x0 + 1 < State.length - 1) {
-            if (State[x0 - 1][y0 - 1] == 1 && State[x0 - 2][y0 - 2] == 1 && State[x0 - 3][y0 - 3] == 0 && State[x0 + 1][y0 + 1] == 0)
+            if (State[x0 - 1][y0 - 1] == chessman && State[x0 - 2][y0 - 2] == chessman && State[x0 - 3][y0 - 3] == 0 && State[x0 + 1][y0 + 1] == 0)
                 check7 = 1;
         }
         if (x0 + 3 < State.length - 1 && x0 - 1 > 0 && y0 + 3 < State.length - 1 && y0 - 1 > 0) {
-            if (State[x0 + 1][y0 + 1] == 1 && State[x0 + 2][y0 + 2] == 1 && State[x0 + 3][y0 + 3] == 0 && State[x0 - 1][y0 - 1] == 0)
+            if (State[x0 + 1][y0 + 1] == chessman && State[x0 + 2][y0 + 2] == chessman && State[x0 + 3][y0 + 3] == 0 && State[x0 - 1][y0 - 1] == 0)
                 check8 = 1;
         }
         if (y0 + 2 < State.length - 2 && y0 + 2 > 0 && x0 + 3 < State.length - 1 && x0 - 1 > 0) {
-            if (State[x0 - 1][y0 - 1] == 1 && State[x0 + 1][y0 + 1] == 1 && State[x0 - 2][y0 - 2] == 0 && State[x0 + 2][y0 + 2] == 0)
+            if (State[x0 - 1][y0 - 1] == chessman && State[x0 + 1][y0 + 1] == chessman && State[x0 - 2][y0 - 2] == 0 && State[x0 + 2][y0 + 2] == 0)
                 check9 = 1;
         }
         if (y0 + 3 < State.length - 1 && y0 - 1 > 0 && x0 - 3 > 0 && x0 + 1 < State.length - 1) {
-            if (State[x0 - 1][y0 + 1] == 1 && State[x0 - 2][y0 + 2] == 1 && State[x0 - 3][y0 + 3] == 0 && State[x0 + 1][y0 - 1] == 0)
+            if (State[x0 - 1][y0 + 1] == chessman && State[x0 - 2][y0 + 2] == chessman && State[x0 - 3][y0 + 3] == 0 && State[x0 + 1][y0 - 1] == 0)
                 check10 = 1;
         }
         if (x0 + 3 < State.length - 1 && x0 - 1 > 0 && x0 + 3 < State.length - 1 && x0 - 1 > 0) {
-            if (State[x0 + 1][y0 - 1] == 1 && State[x0 + 2][y0 - 2] == 1 && State[x0 + 3][y0 - 3] == 0 && State[x0 - 1][y0 + 1] == 0)
+            if (State[x0 + 1][y0 - 1] == chessman && State[x0 + 2][y0 - 2] == chessman && State[x0 + 3][y0 - 3] == 0 && State[x0 - 1][y0 + 1] == 0)
                 check11 = 1;
         }
         if (y0 + 2 < State.length - 2 && y0 + 2 > 0 && x0 + 2 < State.length - 2 && x0 + 2 > 0) {
-            if (State[x0 - 1][y0 + 1] == 1 && State[x0 + 1][y0 - 1] == 1 && State[x0 - 2][y0 + 2] == 0 && State[x0 + 2][y0 - 2] == 0)
+            if (State[x0 - 1][y0 + 1] == chessman && State[x0 + 1][y0 - 1] == chessman && State[x0 - 2][y0 + 2] == 0 && State[x0 + 2][y0 - 2] == 0)
                 check12 = 1;
         }
         if (check1 + check2 + check3 + check4 + check5 + check6 + check7 + check8 + check9 + check10 + check11 + check12 > 1)
